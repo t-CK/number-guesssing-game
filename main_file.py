@@ -10,14 +10,11 @@ from pygame import display
 def Game_Loop():
     play_game = True
     user_input = ''
-        
-    # Needs a way to set player as human or AI
             
     wnd = graphics.Window(True)
 
     # Initialize the game
     mechanics = game_mechanics.Game_Mechanics()
-#    mechanics.begin_play()
     tries = 0
     user_input = -1
     user = wnd.set_player()
@@ -38,8 +35,8 @@ def Game_Loop():
                     wnd.render("Too high")
                 elif res == game_mechanics.Game_State(0):
                     wnd.render(f"YOU WIN! num of guesses: {tries}")
-    # If player is not human, create an ai object and ask it to guess the number
-    # until guess is correct
+                    
+    # If player is not human, create an ai object and ask it to guess the number until guess is correct
     else:
         ai_user = game_mechanics.AI()
         while mechanics.validate_guess(user_input) != game_mechanics.Game_State.GAME_OVER:

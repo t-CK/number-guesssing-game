@@ -30,6 +30,7 @@ class Window:
 
     def __init__(self, is_human :bool) -> None:
         self._player_human = is_human
+
         # Set window values
         self._width = 1000
         self._height = 800
@@ -51,6 +52,7 @@ class Window:
         while not is_valid:
             self._native_window.fill(self._background_color)
             self._native_window.blit(setup_text, (20, 20))
+
             # Set option message colors to mach selection
             if opt_1_chosen:
                 opt_1 = self._font.render("Human", False, (0, 200, 0))
@@ -71,8 +73,7 @@ class Window:
                     self.on_window_closed()
                     break
                 if keys[pygame.K_UP] or keys[pygame.K_DOWN]:
-                    # Flip opt_1_chosen to render selection to window
-                    if opt_1_chosen:
+                    if opt_1_chosen:    # Flip opt_1_chosen to render selection to window
                         opt_1_chosen = False
                     else:
                         opt_1_chosen = True
@@ -85,7 +86,7 @@ class Window:
         img = self._font.render("Guess a number:", False, (100, 250, 250))
         self._native_window.blit(img, (0, 0))
         pygame.display.flip()
-        return opt_1_chosen # Return the selection
+        return opt_1_chosen    # Return the selection
 
     def render(self, msg :str):
         if msg != '':
