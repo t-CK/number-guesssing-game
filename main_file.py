@@ -1,62 +1,73 @@
 import random
 import time
 from enum import Enum
+from tkinter import messagebox
 import graphics
 import game_mechanics
-from pygame import event
-from pygame import display
 
 ################### GAME LOOP #########################
 def Game_Loop():
-    play_game = True
-    user_input = ''
-            
     wnd = graphics.Window(True)
+    is_running = True
+    while is_running:
+        user_input = ''
 
-    # Initialize the game
-    mechanics = game_mechanics.Game_Mechanics()
-    tries = 0
-    user_input = -1
-    user = wnd.set_player()
+        # Initialize the game
+        mechanics = game_mechanics.Game_Mechanics()
+        tries = 0
+        user_input = -1
+        # Set the 
+        user_selection = wnd.Render_Menu()
 
-    # If player is human, loop the game until player guesses the number
-    if user:
-        while mechanics.validate_guess(user_input) != "done":
-            tries +=1
-            wnd.render('')
-            
-            res = wnd.poll_events()
-            if res == graphics.Input_State.READY:
-                res = mechanics.validate_guess(wnd.Get_guess())
+        # variable to keep track of game state in gameloop
+        game_state = game_mechanics.Game_State.NONE
 
-                if res == game_mechanics.Game_State(2):
-                    wnd.render("Too low")
-                elif res == game_mechanics.Game_State(1):
-                    wnd.render("Too high")
-                elif res == game_mechanics.Game_State(0):
-                    wnd.render(f"YOU WIN! num of guesses: {tries}")
-                    
-    # If player is not human, create an ai object and ask it to guess the number until guess is correct
-    else:
-        ai_user = game_mechanics.AI()
-        while mechanics.validate_guess(user_input) != game_mechanics.Game_State.GAME_OVER:
-            wnd.Check_Quit()
-            tries +=1
-            if tries > 0:
+        if user_selection == 2:
+            wnd.on_window_closed()
+        # If player is human, loop the game until player guesses the number
+        elif user_selection == 0:
+            while game_state != game_mechanics.Game_State.GAME_OVER:
+                tries +=1
+                wnd.Render('')
+
+                game_state = wnd.poll_events()
+                if game_state == graphics.Input_State.READY:
+                    game_state = mechanics.Validate_Guess(wnd.Get_Guess())
+
+                    if game_state == game_mechanics.Game_State.TOO_LOW:
+                        wnd.Render("Too low")
+                    elif game_state == game_mechanics.Game_State.TOO_HIGH:
+                        wnd.Render("Too high")
+                    elif game_state == game_mechanics.Game_State.GAME_OVER:
+                        wnd.Render(f"YOU WIN! num of guesses: {tries}")
+                        time.sleep(1)
+
+        # If player is not human, create an ai object and ask it to guess the number until guess is correct
+        elif user_selection == 1:
+            ai_user = game_mechanics.AI()
+            while game_state != game_mechanics.Game_State.GAME_OVER:
+                tries +=1
+                if tries > 0:
+                    time.sleep(0.7)
+                user_input = ai_user.Make_Guess()
+                wnd.Render(str(user_input))
+                game_state = mechanics.Validate_Guess(user_input)
+
+                wnd.Check_Quit() # Check if user want's to quit
                 time.sleep(0.7)
-            user_input = ai_user.Make_Guess()
-            wnd.render(str(user_input))
-            res = mechanics.validate_guess(user_input)
-
-            time.sleep(0.7)
-            if res == game_mechanics.Game_State(2):
-                ai_user.Set_Bounds(False)
-                wnd.render("Too low")
-            elif res == game_mechanics.Game_State(1):
-                ai_user.Set_Bounds(True)
-                wnd.render("Too high")
-            elif res == game_mechanics.Game_State(0):
-                wnd.render(f"YOU WIN! num of guesses: {tries}")
+                if game_state == game_mechanics.Game_State.TOO_LOW:
+                    ai_user.Set_Bounds(False)
+                    wnd.Render("Too low")
+                elif game_state == game_mechanics.Game_State.TOO_HIGH:
+                    ai_user.Set_Bounds(True)
+                    wnd.Render("Too high")
+                elif game_state == game_mechanics.Game_State.GAME_OVER:
+                    wnd.Render(f"YOU WIN! num of guesses: {tries}")
+                    time.sleep(1)
+        else:
+            messagebox.showerror("ERROR", "error has occured selecting player")
+            wnd.on_window_closed()
+        
 #######################################################
 
 def main():

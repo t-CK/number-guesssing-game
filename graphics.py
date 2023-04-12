@@ -45,25 +45,44 @@ class Window:
         pygame.font.init()
         self._font = pygame.font.SysFont(None, 150, True)
 
-    def set_player(self) -> bool:
+    def Render_Menu(self) -> int:
+        """
+        Select if player is human or ai or quit the game
+        Selection 0 : Human
+        Selection 2 : AI
+        Selection 3 : QUIT
+        """
         is_valid = False
         setup_text = self._font.render("Choose player:", False, (100, 250, 200))
-        opt_1_chosen = True # To keep track of user selection
+        selection = 0 # To keep track of user selection
         while not is_valid:
             self._native_window.fill(self._background_color)
             self._native_window.blit(setup_text, (20, 20))
 
             # Set option message colors to mach selection
-            if opt_1_chosen:
+            # Selected optin is colored green, others red
+            if selection == 0:
                 opt_1 = self._font.render("Human", False, (0, 200, 0))
                 self._native_window.blit(opt_1, (50, 200))
                 opt_2 = self._font.render("AI", False, (200, 0, 0))
                 self._native_window.blit(opt_2, (50, 300))
-            elif not opt_1_chosen:
+                opt_3 = self._font.render("QUIT", False, (200, 0, 0))
+                self._native_window.blit(opt_3, (50, 400))
+            elif selection == 1:
                 opt_1 = self._font.render("Human", False, (200, 0, 0))
                 self._native_window.blit(opt_1, (50, 200))
                 opt_2 = self._font.render("AI", False, (0, 200, 0))
                 self._native_window.blit(opt_2, (50, 300))
+                opt_3 = self._font.render("QUIT", False, (200, 0, 0))
+                self._native_window.blit(opt_3, (50, 400))
+            elif selection == 2:
+                opt_1 = self._font.render("Human", False, (200, 0, 0))
+                self._native_window.blit(opt_1, (50, 200))
+                opt_2 = self._font.render("AI", False, (200, 0, 0))
+                self._native_window.blit(opt_2, (50, 300))
+                opt_3 = self._font.render("QUIT", False, (0, 200, 0))
+                self._native_window.blit(opt_3, (50, 400))
+            
 
             # Poll events on selection loop
             if pygame.event.peek():
@@ -71,12 +90,14 @@ class Window:
                 e = pygame.event.poll()
                 if e.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
                     self.on_window_closed()
-                    break
-                if keys[pygame.K_UP] or keys[pygame.K_DOWN]:
-                    if opt_1_chosen:    # Flip opt_1_chosen to render selection to window
-                        opt_1_chosen = False
-                    else:
-                        opt_1_chosen = True
+                if keys[pygame.K_UP]:
+                    selection -=1
+                    if selection < 0:
+                        selection = 0
+                elif keys[pygame.K_DOWN]:
+                    selection +=1
+                    if selection > 2:
+                        selection = 2
                 if keys[pygame.K_RETURN] or keys[pygame.K_KP_ENTER]:
                     self._native_window.fill(self._background_color)
                     is_valid = True
@@ -86,9 +107,9 @@ class Window:
         img = self._font.render("Guess a number:", False, (100, 250, 250))
         self._native_window.blit(img, (0, 0))
         pygame.display.flip()
-        return opt_1_chosen    # Return the selection
+        return selection    # Return the selection
 
-    def render(self, msg :str):
+    def Render(self, msg :str):
         if msg != '':
             self._native_window.fill(self._background_color)
             if msg.find("YOU WIN!") != -1:
@@ -97,6 +118,7 @@ class Window:
                 self._font = pygame.font.SysFont(None, 100, True)
                 img = self._font.render(msg[8:], False, (100, 250, 200))
                 self._native_window.blit(img, (50, 150))
+            
             else:
                 if msg == "Too low":
                     img = self._font.render(msg, False, (250, 0, 0))
@@ -105,14 +127,14 @@ class Window:
                 self._native_window.blit(img, (0, 0))
             pygame.display.flip()
     
-    def update(self, string :str) ->None:
+    def Update(self, string :str) ->None:
         """Updates window afrer key press has been detected"""
         self._native_window.fill(self._background_color)
         img = self._font.render("Guess a number:", False, (100, 250, 250))
         
         self._native_window.blit(img, (0, 0))
         img = self._font.render(string, False, (100, 250, 200))
-        self._native_window.blit(img, (100, 250))
+        self._native_window.blit(img, (200, 250))
         pygame.display.flip()
 
     # Check if user has exited the game
@@ -120,7 +142,6 @@ class Window:
         e = pygame.event.poll()
         if e.type == pygame.QUIT:
             self.on_window_closed()
-            return Input_State.QUIT
         if e.type == pygame.KEYDOWN:
             if e.key == pygame.K_ESCAPE:
                 self.on_window_closed()
@@ -134,7 +155,6 @@ class Window:
                 e = pygame.event.poll()
                 if e.type == pygame.QUIT:
                     self.on_window_closed()
-                    return Input_State.QUIT
                 if e.type == pygame.KEYDOWN:
                     if e.key == pygame.K_ESCAPE:
                         self.on_window_closed()
@@ -142,44 +162,44 @@ class Window:
                     if len(print_string) < 4:
                         if e.key == pygame.K_0 or e.key == pygame.K_KP0:
                             print_string += '0'
-                            self.update(print_string)
+                            self.Update(print_string)
                         elif e.key == pygame.K_1 or e.key == pygame.K_KP1:
                             print_string += '1'
-                            self.update(print_string)
+                            self.Update(print_string)
                         elif e.key == pygame.K_2 or e.key == pygame.K_KP2:
                             print_string += '2'
-                            self.update(print_string)
+                            self.Update(print_string)
                         elif e.key == pygame.K_3 or e.key == pygame.K_KP3:
                             print_string += '3'
-                            self.update(print_string)
+                            self.Update(print_string)
                         elif e.key == pygame.K_4 or e.key == pygame.K_KP4:
                             print_string += '4'
-                            self.update(print_string)
+                            self.Update(print_string)
                         elif e.key == pygame.K_5 or e.key == pygame.K_KP5:
                             print_string += '5'
-                            self.update(print_string)
+                            self.Update(print_string)
                         elif e.key == pygame.K_6 or e.key == pygame.K_KP6:
                             print_string += '6'
-                            self.update(print_string)
+                            self.Update(print_string)
                         elif e.key == pygame.K_7 or e.key == pygame.K_KP7:
                             print_string += '7'
-                            self.update(print_string)
+                            self.Update(print_string)
                         elif e.key == pygame.K_8 or e.key == pygame.K_KP8:
                             print_string += '8'
-                            self.update(print_string)
+                            self.Update(print_string)
                         elif e.key == pygame.K_9 or e.key == pygame.K_KP9:
                             print_string += '9'
-                            self.update(print_string)
+                            self.Update(print_string)
                     if e.key == pygame.K_BACKSPACE:
                         print_string = print_string[:-1]
-                        self.update(print_string)
+                        self.Update(print_string)
                     if e.key == pygame.K_RETURN or e.key == pygame.K_KP_ENTER:
                         if len(print_string) > 0:
                             break
         self._guess = int(print_string)
         return Input_State(0)
     
-    def Get_guess(self) -> int:
+    def Get_Guess(self) -> int:
         return self._guess
 
     # Handle window closing and player quitting the game
